@@ -5,11 +5,9 @@ import com.mycompany.models.Tarea;
 import java.util.List;
 
 public interface ITareaServicio {
-    public List<Tarea> listarTareas();
+    List<Tarea> listarTareas();
 
-    public Tarea buscarTareaPorId(Integer idTarea);
+    void guardarTarea(Tarea tarea);
 
-    public void guardarTarea(Tarea tarea);
-
-    public void eliminarTarea(Tarea tarea);
+    void eliminarTarea(Tarea tarea);
 }

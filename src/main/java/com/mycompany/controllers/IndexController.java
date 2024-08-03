@@ -9,7 +9,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,22 +43,12 @@ public class IndexController implements Initializable {
     private TextField responsableTareaTexto;
 
     @javafx.fxml.FXML
-    private Button eliminarBoton;
-
-    @javafx.fxml.FXML
-    private Button ltBoton;
-
-    @javafx.fxml.FXML
-    private Button modificarBoton;
-
-    @javafx.fxml.FXML
     private TextField estatusTareaTexto;
 
     @javafx.fxml.FXML
-    private Button agregarBoton;
-
-    @javafx.fxml.FXML
     private TextField nombreTareaTexto;
+
+    private Integer idTareaInterno;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -91,6 +80,7 @@ public class IndexController implements Initializable {
 
         Tarea tarea = new Tarea();
         recolectarDatosFormulario(tarea);
+        tarea.setIdTarea(null);
         tareaServicio.guardarTarea(tarea);
         mostrarMensaje("Informacion", "Tarea guardada con exito", Alert.AlertType.INFORMATION);
         limpiarFormulario();
@@ -106,14 +96,64 @@ public class IndexController implements Initializable {
     }
 
     private void recolectarDatosFormulario(Tarea tarea) {
+        if (idTareaInterno != null) {
+            tarea.setIdTarea(idTareaInterno);
+        }
         tarea.setNombreTarea(nombreTareaTexto.getText());
         tarea.setResponsable(responsableTareaTexto.getText());
         tarea.setEstatus(estatusTareaTexto.getText());
     }
 
-    private void limpiarFormulario() {
+    @javafx.fxml.FXML
+    public void limpiarFormulario() {
+        idTareaInterno = null;
         nombreTareaTexto.clear();
         responsableTareaTexto.clear();
         estatusTareaTexto.clear();
+    }
+
+    @javafx.fxml.FXML
+    public void cargarTareaFormulario() {
+        Tarea tarea = tareaTabla.getSelectionModel().getSelectedItem();
+        if (tarea != null) {
+            idTareaInterno = tarea.getIdTarea();
+            nombreTareaTexto.setText(tarea.getNombreTarea());
+            responsableTareaTexto.setText(tarea.getResponsable());
+            estatusTareaTexto.setText(tarea.getEstatus());
+        }
+    }
+
+    @javafx.fxml.FXML
+    public void modificarTarea() {
+        if (idTareaInterno == null) {
+            mostrarMensaje("Informacion", "Debe seleccionar una tarea", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        if (nombreTareaTexto.getText().isEmpty() || responsableTareaTexto.getText().isEmpty() || estatusTareaTexto.getText().isEmpty()) {
+            mostrarMensaje("Error", "Todos los campos son obligatorios", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Tarea tarea = new Tarea();
+        recolectarDatosFormulario(tarea);
+        tareaServicio.guardarTarea(tarea);
+        mostrarMensaje("Informacion", "Tarea modificada con exito", Alert.AlertType.INFORMATION);
+        limpiarFormulario();
+        listarTareas();
+    }
+
+    @javafx.fxml.FXML
+    public void eliminarTarea() {
+        Tarea tarea = tareaTabla.getSelectionModel().getSelectedItem();
+        if (tarea != null) {
+            logger.info("Eliminando tarea: {}", tarea);
+            tareaServicio.eliminarTarea(tarea);
+            mostrarMensaje("Informacion", "Tarea " + tarea.getIdTarea() + " eliminada con exito", Alert.AlertType.INFORMATION);
+            limpiarFormulario();
+            listarTareas();
+        } else {
+            mostrarMensaje("Error", "Debe seleccionar una tarea", Alert.AlertType.ERROR);
+        }
     }
 }

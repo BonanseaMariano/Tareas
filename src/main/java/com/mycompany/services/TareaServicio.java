@@ -19,11 +19,6 @@ public class TareaServicio implements ITareaServicio{
     }
 
     @Override
-    public Tarea buscarTareaPorId(Integer idTarea) {
-        return tareaRepositorio.findById(idTarea).orElse(null);
-    }
-
-    @Override
     public void guardarTarea(Tarea tarea) {
         tareaRepositorio.save(tarea);
     }
